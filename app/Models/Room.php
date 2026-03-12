@@ -10,6 +10,7 @@ class Room extends Model
         'property_id',
         'room_type',
         'rent',
+        'description',
         'available',
         'temporary_allowed',
         'min_days',

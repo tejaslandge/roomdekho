@@ -27,4 +27,9 @@ class Property extends Model
     {
         return $this->hasMany(Room::class);
     }
+    
+    public function images()
+    {
+        return $this->hasMany(PropertyImage::class);
+    }
 }

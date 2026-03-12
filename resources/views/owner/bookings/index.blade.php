@@ -47,20 +47,21 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                @if($booking->status === 'pending')
-                                    <form action="{{ route('owner.bookings.update-status', [$booking, 'active']) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors">Accept</button>
-                                    </form>
-                                    <form action="{{ route('owner.bookings.update-status', [$booking, 'cancelled']) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="bg-red-50 text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">Reject</button>
-                                    </form>
-                                @else
-                                    <span class="text-xs text-text-secondary">No actions available</span>
-                                @endif
+                                    <a href="{{ route('owner.messages.index') }}" class="p-2.5 bg-white border border-gray-100 rounded-xl text-primary hover:bg-primary/5 hover:border-primary/20 transition-all shadow-sm" title="Chat with Tenant">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                    </a>
+                                    @if($booking->status === 'pending')
+                                        <form action="{{ route('owner.bookings.update-status', [$booking, 'active']) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-green-200 transition-all">Accept</button>
+                                        </form>
+                                        <form action="{{ route('owner.bookings.update-status', [$booking, 'cancelled']) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-100 transition-all">Reject</button>
+                                        </form>
+                                    @endif
                             </div>
                         </td>
                     </tr>

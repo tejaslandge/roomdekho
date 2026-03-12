@@ -32,7 +32,14 @@ class PropertyController extends Controller
             'description' => 'required|string',
         ]);
 
-        auth()->user()->properties()->create($validated);
+        $property = auth()->user()->properties()->create($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('properties', 'public');
+                $property->images()->create(['image_path' => $path]);
+            }
+        }
 
         return redirect()->route('owner.properties.index')->with('success', 'Property created successfully!');
     }
@@ -57,6 +64,13 @@ class PropertyController extends Controller
         ]);
 
         $property->update($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('properties', 'public');
+                $property->images()->create(['image_path' => $path]);
+            }
+        }
 
         return redirect()->route('owner.properties.index')->with('success', 'Property updated successfully!');
     }

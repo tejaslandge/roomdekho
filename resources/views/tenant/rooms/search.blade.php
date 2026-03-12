@@ -47,9 +47,18 @@
                 @forelse($rooms as $room)
                     <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
                         <div class="h-48 bg-gray-200 relative overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute top-4 right-4 h-8 w-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-red-500 cursor-pointer shadow-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            @if($room->images->count() > 0)
+                                <img src="{{ asset('storage/' . $room->images->first()->image_path) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            @else
+                                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            @endif
+                            <div class="absolute top-4 right-4">
+                                <form action="{{ route('tenant.favourites.toggle', $room) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="h-8 w-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center {{ auth()->user()->favourites()->where('room_id', $room->id)->exists() ? 'text-red-500' : 'text-gray-400 hover:text-red-500' }} shadow-sm border border-white/20 transition-colors">
+                                        <svg class="w-5 h-5" fill="{{ auth()->user()->favourites()->where('room_id', $room->id)->exists() ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                         <div class="p-5">
@@ -61,7 +70,7 @@
                             <p class="text-sm text-text-secondary truncate mt-1">{{ $room->property->area }}</p>
                             <div class="mt-4 flex items-center justify-between">
                                 <span class="font-bold text-primary text-lg">₹{{ number_format($room->rent) }}<span class="text-text-secondary text-xs">/mo</span></span>
-                                <button class="text-sm font-black text-text-primary hover:text-primary transition-colors underline uppercase tracking-tighter">View</button>
+                                <a href="{{ route('tenant.rooms.show', $room) }}" class="text-sm font-black text-text-primary hover:text-primary transition-colors underline uppercase tracking-tighter">View Details</a>
                             </div>
                         </div>
                     </div>

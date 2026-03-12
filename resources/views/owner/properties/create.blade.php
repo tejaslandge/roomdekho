@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
         <h1 class="text-2xl font-bold text-text-primary mb-6">Property Details</h1>
-        <form action="{{ route('owner.properties.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('owner.properties.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
@@ -24,6 +24,10 @@
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-text-secondary">Full Address</label>
                     <input type="text" name="address" required class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20" placeholder="e.g. 123 Main St, Whitefield">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-text-secondary">Property Photos (Multiple)</label>
+                    <input type="file" name="images[]" multiple class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
                 </div>
             </div>
             <div class="space-y-2">

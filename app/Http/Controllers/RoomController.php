@@ -32,25 +32,37 @@ class RoomController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'property_id' => 'required|exists:properties,id',
-            'room_type' => 'required|string|max:100',
-            'rent' => 'required|numeric|min:0',
-            'electricity_type' => 'required|string|max:100',
-            'water_source' => 'required|string|max:100',
-            'description' => 'required|string',
-            'available' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'property_id' => 'required|exists:properties,id',
+                'room_type' => 'required|string|max:100',
+                'rent' => 'required|numeric|min:0',
+                'electricity_type' => 'required|string|max:100',
+                'water_source' => 'required|string|max:100',
+                'description' => 'required|string',
+            ]);
 
-        $property = \App\Models\Property::findOrFail($validated['property_id']);
-        if ($property->owner_id !== auth()->id()) {
-            abort(403);
+            $property = \App\Models\Property::findOrFail($validated['property_id']);
+            if ($property->owner_id !== auth()->id() && auth()->user()->role !== 'admin') {
+                abort(403);
+            }
+
+            $validated['available'] = $request->has('available');
+            
+            $room = \App\Models\Room::create($validated);
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('rooms', 'public');
+                    $room->images()->create(['image_path' => $path]);
+                }
+            }
+
+            return redirect()->route('owner.rooms.index')->with('success', 'Room added successfully!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Room Creation Failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to add room: ' . $e->getMessage());
         }
-
-        $validated['available'] = $request->has('available');
-        \App\Models\Room::create($validated);
-
-        return redirect()->route('owner.rooms.index')->with('success', 'Room added successfully!');
     }
 
     public function edit(\App\Models\Room $room)
@@ -80,6 +92,13 @@ class RoomController extends Controller
 
         $validated['available'] = $request->has('available');
         $room->update($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('rooms', 'public');
+                $room->images()->create(['image_path' => $path]);
+            }
+        }
 
         return redirect()->route('owner.rooms.index')->with('success', 'Room updated successfully!');
     }
@@ -122,5 +141,20 @@ class RoomController extends Controller
         $rooms = $query->latest()->paginate(9);
 
         return view('tenant.rooms.search', compact('rooms'));
+    }
+
+    public function show(\App\Models\Room $room)
+    {
+        $room->load(['property.owner', 'images', 'amenities']);
+        
+        $activeBooking = null;
+        if (auth()->check()) {
+            $activeBooking = auth()->user()->bookings()
+                ->where('room_id', $room->id)
+                ->where('status', 'active')
+                ->first();
+        }
+
+        return view('tenant.rooms.show', compact('room', 'activeBooking'));
     }
 }

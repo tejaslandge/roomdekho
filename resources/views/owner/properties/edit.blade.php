@@ -10,7 +10,7 @@
             <x-status-badge :status="$property->status" />
         </div>
         
-        <form action="{{ route('owner.properties.update', $property) }}" method="POST" class="space-y-6">
+        <form action="{{ route('owner.properties.update', $property) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
             
@@ -37,6 +37,20 @@
                         <option value="active" {{ $property->status == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ $property->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-text-secondary">Property Photos (Add More)</label>
+                    <input type="file" name="images[]" multiple class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
+                    
+                    @if($property->images->count() > 0)
+                        <div class="mt-4 flex gap-2 flex-wrap">
+                            @foreach($property->images as $image)
+                                <div class="relative w-20 h-20">
+                                    <img src="{{ asset('storage/' . $image->image_path) }}" class="w-20 h-20 object-cover rounded-lg border border-gray-100">
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
             

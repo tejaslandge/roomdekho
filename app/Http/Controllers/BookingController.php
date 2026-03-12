@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Agreement;
+use App\Models\Booking;
+use App\Models\Room;
 
 class BookingController extends Controller
 {
@@ -35,13 +38,14 @@ class BookingController extends Controller
         auth()->user()->bookings()->create([
             'room_id' => $validated['room_id'],
             'start_date' => $validated['start_date'],
+            'amount' => $room->rent,
             'status' => 'pending',
         ]);
 
         return redirect()->route('tenant.bookings.index')->with('success', 'Booking request sent successfully!');
     }
 
-    public function updateStatus(Request $request, \App\Models\Booking $booking, $status)
+    public function updateStatus(Request $request, Booking $booking, $status)
     {
         // Simple authorization: owner or admin
         if (auth()->user()->role === 'owner' && $booking->room->property->owner_id !== auth()->id()) {
@@ -57,6 +61,16 @@ class BookingController extends Controller
         // If booking is accepted, make the room unavailable
         if ($status === 'active') {
             $booking->room->update(['available' => false]);
+            
+            // Create Agreement
+            Agreement::create([
+                'booking_id' => $booking->id,
+                'owner_id' => $booking->room->property->owner_id,
+                'tenant_id' => $booking->tenant_id,
+                'start_date' => $booking->start_date,
+                'end_date' => $booking->end_date, // might be null, following our fix
+            ]);
+
             $msg = 'Booking accepted!';
         } else {
             $msg = 'Booking cancelled.';
