@@ -51,7 +51,7 @@
                             <p class="text-sm text-text-secondary truncate mt-1">{{ $room->property->area }}</p>
                             <div class="mt-4 flex items-center justify-between">
                                 <span class="font-bold text-primary text-lg">₹{{ number_format($room->rent) }}<span class="text-text-secondary text-xs">/mo</span></span>
-                                <a href="{{ route('tenant.rooms.search') }}" class="text-sm font-black text-text-primary hover:text-primary transition-colors underline uppercase tracking-tighter">Details</a>
+                                <a href="{{ route('tenant.rooms.show', $room) }}" class="text-sm font-black text-text-primary hover:text-primary transition-colors underline uppercase tracking-tighter">View Details</a>
                             </div>
                         </div>
                     </div>
