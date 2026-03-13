@@ -25,7 +25,25 @@ class User extends Authenticatable
         'phone',
         'role',
         'profile_photo',
+        'status',
     ];
+
+    public function isVerified(): bool
+    {
+        // Check for approved Aadhaar
+        $hasAadhar = $this->verifications()
+            ->where('id_type', 'aadhaar')
+            ->where('status', 'approved')
+            ->exists();
+            
+        // Check for approved PAN or Driving License
+        $hasPanOrDL = $this->verifications()
+            ->whereIn('id_type', ['pan', 'driving_license'])
+            ->where('status', 'approved')
+            ->exists();
+
+        return $hasAadhar && $hasPanOrDL;
+    }
 
     /**
      * The attributes that should be hidden for serialization.

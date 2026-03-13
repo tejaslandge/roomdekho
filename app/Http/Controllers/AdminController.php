@@ -81,6 +81,12 @@ class AdminController extends Controller
         return view('admin.users.edit', compact('user'));
     }
 
+    public function showUser(\App\Models\User $user)
+    {
+        $user->load(['properties', 'bookings.room.property', 'verifications']);
+        return view('admin.users.show', compact('user'));
+    }
+
     public function updateUser(Request $request, \App\Models\User $user)
     {
         $validated = $request->validate([

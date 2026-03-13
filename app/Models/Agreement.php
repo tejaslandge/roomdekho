@@ -13,6 +13,7 @@ class Agreement extends Model
         'file_path',
         'start_date',
         'end_date',
+        'status',
     ];
 
     public function booking()

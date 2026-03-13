@@ -21,11 +21,17 @@ class PropertyController extends Controller
 
     public function create()
     {
+        if (auth()->user()->status !== 'active') {
+            return redirect()->route('owner.properties.index')->with('error', 'Mandatory verification required (Aadhar + PAN/DL) to list properties.');
+        }
         return view('owner.properties.create');
     }
 
     public function store(Request $request)
     {
+        if (auth()->user()->status !== 'active') {
+            return redirect()->route('owner.properties.index')->with('error', 'Mandatory verification required (Aadhar + PAN/DL) to list properties.');
+        }
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'city' => 'required|string|max:150',

@@ -12,6 +12,7 @@ class UserVerification extends Model
         'id_number',
         'id_image',
         'status',
+        'rejection_reason',
     ];
 
     public function user()

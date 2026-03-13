@@ -20,6 +20,11 @@ use App\Http\Controllers\MessageController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Verification Routes (Common)
+    Route::get('/verifications', [\App\Http\Controllers\UserVerificationController::class, 'index'])->name('verifications.index');
+    Route::get('/verifications/create', [\App\Http\Controllers\UserVerificationController::class, 'create'])->name('verifications.create');
+    Route::post('/verifications', [\App\Http\Controllers\UserVerificationController::class, 'store'])->name('verifications.store');
+
     Route::get('/dashboard', function () {
         $role = Auth::user()->role;
 
@@ -29,12 +34,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Routes
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+        Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
         Route::get('/users', [AdminController::class, 'users'])->name('users.index');
         Route::get('/payments', [AdminController::class, 'payments'])->name('payments.index');
         Route::get('/maintenance', [AdminController::class, 'maintenance'])->name('maintenance.index');
         Route::get('/messages', [AdminController::class, 'messages'])->name('messages.index');
         Route::get('/agreements', [AgreementController::class, 'index'])->name('agreements.index');
         Route::get('/agreements/{agreement}', [AgreementController::class, 'show'])->name('agreements.show');
+        Route::post('/agreements/{agreement}/terminate', [AgreementController::class, 'terminate'])->name('agreements.terminate');
         Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
         Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
         Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
@@ -45,6 +52,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('rooms', RoomController::class);
         Route::resource('bookings', BookingController::class);
         Route::patch('/bookings/{booking}/status/{status}', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
+
+        // Admin Verification Management
+        Route::get('/verifications', [\App\Http\Controllers\UserVerificationController::class, 'adminIndex'])->name('verifications.admin-index');
+        Route::patch('/verifications/{verification}/approve', [\App\Http\Controllers\UserVerificationController::class, 'approve'])->name('verifications.approve');
+        Route::patch('/verifications/{verification}/reject', [\App\Http\Controllers\UserVerificationController::class, 'reject'])->name('verifications.reject');
     });
 
     // Owner Routes
@@ -57,6 +69,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/maintenance', [OwnerController::class, 'maintenance'])->name('maintenance.index');
         Route::get('/agreements', [AgreementController::class, 'index'])->name('agreements.index');
         Route::get('/agreements/{agreement}', [AgreementController::class, 'show'])->name('agreements.show');
+        Route::post('/agreements/{agreement}/terminate', [AgreementController::class, 'terminate'])->name('agreements.terminate');
         Route::get('/profile', [OwnerController::class, 'profile'])->name('profile');
         Route::resource('properties', PropertyController::class);
         Route::resource('rooms', RoomController::class);
@@ -82,6 +95,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profile', [TenantController::class, 'profile'])->name('profile');
         Route::get('/agreements', [AgreementController::class, 'index'])->name('agreements.index');
         Route::get('/agreements/{agreement}', [AgreementController::class, 'show'])->name('agreements.show');
+        Route::post('/agreements/{agreement}/terminate', [AgreementController::class, 'terminate'])->name('agreements.terminate');
         Route::resource('bookings', BookingController::class);
         Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show');
     });

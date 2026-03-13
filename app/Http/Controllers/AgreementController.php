@@ -30,4 +30,19 @@ class AgreementController extends Controller
         $agreement->load(['booking.room.property', 'tenant', 'owner']);
         return view('common.agreements.show', compact('agreement'));
     }
+
+    public function terminate(Agreement $agreement)
+    {
+        // Authorization
+        if (!in_array(auth()->id(), [$agreement->owner_id, $agreement->tenant_id]) && auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $agreement->update(['status' => 'terminated']);
+        
+        // Make room available again
+        $agreement->booking->room->update(['available' => true]);
+
+        return back()->with('success', 'Agreement terminated successfully. The room is now available.');
+    }
 }

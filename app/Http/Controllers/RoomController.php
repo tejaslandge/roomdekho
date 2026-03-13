@@ -38,6 +38,9 @@ class RoomController extends Controller
 
     public function create()
     {
+        if (Auth::user()->status !== 'active') {
+            return redirect()->route('owner.rooms.index')->with('error', 'Mandatory verification required (Aadhar + PAN/DL) to list rooms.');
+        }
         $properties = Auth::user()->properties;
 
         return view('owner.rooms.create', compact('properties'));
@@ -46,6 +49,9 @@ class RoomController extends Controller
 
     public function store(Request $request)
     {
+        if (Auth::user()->status !== 'active') {
+            return redirect()->route('owner.rooms.index')->with('error', 'Mandatory verification required (Aadhar + PAN/DL) to list rooms.');
+        }
         $validated = $request->validate([
             'property_id' => 'required|exists:properties,id',
             'room_type' => 'required|string|max:100',
