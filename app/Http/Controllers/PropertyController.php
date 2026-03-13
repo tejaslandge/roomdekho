@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Property;
+// use App\Models\PropertyImage;
 
 class PropertyController extends Controller
 {
@@ -12,7 +14,7 @@ class PropertyController extends Controller
             $properties = \App\Models\Property::with('owner')->withCount('rooms')->latest()->paginate(10);
             return view('admin.properties.index', compact('properties'));
         }
-        
+
         $properties = auth()->user()->properties()->withCount('rooms')->latest()->paginate(10);
         return view('owner.properties.index', compact('properties'));
     }
@@ -88,9 +90,23 @@ class PropertyController extends Controller
         if (auth()->user()->role === 'admin') {
             return;
         }
-        
+
         if ($property->owner_id !== auth()->id()) {
             abort(403);
         }
+    }
+
+    public function show(Property $property)
+    {
+        if ($property->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $property->load([
+            'rooms',
+            'images'
+        ]);
+
+        return view('owner.properties.show', compact('property'));
     }
 }

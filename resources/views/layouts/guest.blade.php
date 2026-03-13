@@ -18,7 +18,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-purple-100 via-white to-pink-100">
             <div class="mb-6 transform hover:scale-110 transition-transform duration-300">
                 <a href="/">
-                    {{-- <x-application-logo class="w-20 h-20 fill-current text-purple-600" /> --}}
+                    <x-application-logo class="w-20 h-20 fill-current text-purple-600" />
                 </a>
             </div>
 

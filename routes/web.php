@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BookingController;
@@ -15,13 +16,14 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\MessageController;
 
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        $role = auth()->user()->role;
+        $role = Auth::user()->role;
 
-        return redirect()->route($role.'.dashboard');
+        return redirect()->route($role . '.dashboard');
     })->name('dashboard');
 
     // Admin Routes
@@ -66,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
         Route::get('/dashboard', [TenantController::class, 'index'])->name('dashboard');
         Route::get('/search', [RoomController::class, 'search'])->name('rooms.search');
-          Route::get('/favourites', [TenantController::class, 'favourites'])->name('favourites.index');
+        Route::get('/favourites', [TenantController::class, 'favourites'])->name('favourites.index');
         Route::post('/favourites/{room}/toggle', [TenantController::class, 'toggleFavourite'])->name('favourites.toggle');
         Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
         Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
@@ -91,4 +93,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
