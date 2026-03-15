@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -94,7 +95,15 @@ class AdminController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,owner,tenant',
             'phone' => 'nullable|string|max:20',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('profile_photo')) {
+            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+            $validated['profile_photo'] = $request->file('profile_photo')->store('profile_photos', 'public');
+        }
 
         $user->update($validated);
 

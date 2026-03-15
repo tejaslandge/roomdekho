@@ -7,10 +7,21 @@
     <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
         <h1 class="text-2xl font-bold text-text-primary mb-6">Edit User Profile</h1>
         
-        <form action="{{ route('admin.users.update', $user) }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
             
+            <div class="flex items-center gap-6 mb-8">
+                <img class="h-24 w-24 rounded-full object-cover border-4 border-gray-50 shadow-sm" src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}">
+                <div class="space-y-1">
+                    <label class="text-sm font-bold text-text-secondary block">Profile Photo</label>
+                    <input type="file" name="profile_photo" accept="image/*" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    @error('profile_photo')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-text-secondary">Full Name</label>

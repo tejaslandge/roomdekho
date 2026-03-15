@@ -30,6 +30,22 @@ class User extends Authenticatable implements MustVerifyEmail
         'otp_expires_at',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['profile_photo_url'];
+
+    public function getProfilePhotoUrlAttribute()
+    {
+        if ($this->profile_photo) {
+            return asset('storage/' . $this->profile_photo);
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+    }
+
     public function isVerified(): bool
     {
         // Check for approved Aadhaar

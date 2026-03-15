@@ -62,9 +62,9 @@
                             <p class="text-sm font-semibold text-text-primary leading-none group-hover:text-primary">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-text-secondary mt-1 capitalize">{{ auth()->user()->role }}</p>
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold group-hover:bg-primary group-hover:text-white transition-all">
-                            {{ substr(auth()->user()->name, 0, 1) }}
-                        </div>
+                        <img class="w-10 h-10 rounded-full object-cover border-2 border-primary/20 group-hover:border-primary transition-all" 
+                             src="{{ auth()->user()->profile_photo_url }}" 
+                             alt="{{ auth()->user()->name }}">
                     </a>
                 </div>
             </header>

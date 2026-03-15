@@ -29,9 +29,9 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </div>
+                                <img class="w-10 h-10 rounded-full object-cover border border-gray-100" 
+                                     src="{{ $user->profile_photo_url }}" 
+                                     alt="{{ $user->name }}">
                                 <div>
                                     <p class="text-sm font-bold text-text-primary">{{ $user->name }}</p>
                                     <p class="text-xs text-text-secondary">{{ $user->email }}</p>

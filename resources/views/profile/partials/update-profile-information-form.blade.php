@@ -13,9 +13,18 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
+
+        <div class="flex items-center gap-4">
+            <img class="h-20 w-20 rounded-full object-cover border border-gray-200" src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}">
+            <div>
+                <x-input-label for="profile_photo" :value="__('Profile Photo')" />
+                <x-text-input id="profile_photo" name="profile_photo" type="file" class="mt-1 block w-full" accept="image/*" />
+                <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+            </div>
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />

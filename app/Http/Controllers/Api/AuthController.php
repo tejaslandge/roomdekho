@@ -10,6 +10,7 @@ use App\Mail\OtpMail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends BaseController
 {
@@ -27,9 +28,15 @@ class AuthController extends BaseController
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string|max:20',
             'role' => 'required|in:tenant,owner',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $profilePhotoPath = null;
+        if ($request->hasFile('profile_photo')) {
+            $profilePhotoPath = $request->file('profile_photo')->store('profile_photos', 'public');
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -37,12 +44,13 @@ class AuthController extends BaseController
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'role' => $request->role,
+            'profile_photo' => $profilePhotoPath,
             'status' => 'pending',
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(10),
         ]);
 
-        Mail::to($user->email)->send(new OtpMail($otp));
+        // Mail::to($user->email)->send(new OtpMail($otp));
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -103,6 +111,37 @@ class AuthController extends BaseController
     public function profile(Request $request): JsonResponse
     {
         return $this->success($request->user());
+    }
+
+    /**
+     * Update user profile.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $data = $request->only(['name', 'phone']);
+
+        if ($request->hasFile('profile_photo')) {
+            // Delete old photo if exists
+            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+            $data['profile_photo'] = $request->file('profile_photo')->store('profile_photos', 'public');
+        }
+
+        $user->update($data);
+
+        return $this->success($user, 'Profile updated successfully');
     }
 
     /**

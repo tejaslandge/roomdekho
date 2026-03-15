@@ -4,8 +4,15 @@
         <p class="mt-2 text-sm text-gray-600">Join our community today</p>
     </div>
 
-    <form method="POST" action="{{ route('register') }}" class="space-y-4">
+    <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
+
+        <!-- Profile Photo -->
+        <div>
+            <x-input-label for="profile_photo" :value="__('Profile Photo')" class="text-gray-700 font-medium" />
+            <x-text-input id="profile_photo" class="block mt-1 w-full" type="file" name="profile_photo" accept="image/*" />
+            <x-input-error :messages="$errors->get('profile_photo')" class="mt-2" />
+        </div>
 
         <!-- Name -->
         <div>
