@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            $table->date('end_date')->nullable()->change();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('otp')->nullable()->after('phone');
+            $table->timestamp('otp_expires_at')->nullable()->after('otp');
         });
     }
 
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            $table->date('end_date')->nullable(false)->change();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['otp', 'otp_expires_at']);
         });
     }
 };
