@@ -6,6 +6,7 @@
         <title>RoomDekho | Find Your Perfect Room</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700" rel="stylesheet" />
+        <link rel="shortcut icon" href="assets/app_icon.png" type="image/x-icon">
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <style>
