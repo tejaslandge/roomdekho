@@ -199,7 +199,8 @@
                 </div>
             </div>
             <div class="max-w-6xl mx-auto px-6 border-t border-gray-50 pt-10 text-center text-sm text-textSecondary">
-                &copy; {{ date('Y') }} RoomDekho. All rights reserved . Designed and Developed by <a class="text-blue-600" href="https://github.com/tejaslandge">Tejas Landge</a>.
+                &copy; {{ date('Y') }} RoomDekho. All rights reserved . Designed and Developed by ❤️.
+                {{-- <a class="text-blue-600" href="https://github.com/tejaslandge">Tejas Landge</a>. --}}
             </div>
         </footer>
     </body>
