@@ -37,12 +37,18 @@
         return isStandalone() || safeStorage('get', 'rd-pwa-installed') === '1';
     }
 
+    function isInstallDismissed() {
+        return safeStorage('get', 'rd-pwa-install-dismissed') === '1';
+    }
+
     function show(element) {
         if (element) element.removeAttribute('hidden');
+        if (element) element.style.display = '';
     }
 
     function hide(element) {
         if (element) element.setAttribute('hidden', '');
+        if (element) element.style.display = 'none';
     }
 
     function installButtons() {
@@ -51,6 +57,16 @@
 
     function helpTriggers() {
         return Array.prototype.slice.call(document.querySelectorAll('[data-pwa-help]'));
+    }
+
+    function refreshModalUI() {
+        var wrap = document.getElementById('pwa-modal-install-wrap');
+        if (!wrap) return;
+        if (deferredPrompt && !isInstalled()) {
+            wrap.classList.remove('hidden');
+        } else {
+            wrap.classList.add('hidden');
+        }
     }
 
     function refreshInstallUI() {
@@ -72,12 +88,15 @@
             }
         });
 
+        refreshModalUI();
+
         if (installed) {
             document.documentElement.setAttribute('data-pwa-installed', '1');
         }
     }
 
     function showToast(message) {
+        if (!toast) toast = document.getElementById('pwa-toast');
         if (!toast) return;
         toast.textContent = message;
         show(toast);
@@ -88,56 +107,84 @@
     }
 
     function openHelp() {
+        if (isInstalled()) return;
         if (!helpModal) helpModal = document.getElementById('pwa-help-modal');
         if (!helpModal) return;
+        refreshModalUI();
         helpModal.removeAttribute('hidden');
         helpModal.style.display = '';
-        var first = helpModal.querySelector('[data-pwa-close-help]');
-        if (first) first.focus();
+        var first = helpModal.querySelector('[data-pwa-close-help], [data-pwa-modal-install]');
+        if (first) {
+            try { first.focus(); } catch (e) {}
+        }
     }
 
-    function closeHelp() {
+    function closeHelp(dismiss) {
         if (!helpModal) helpModal = document.getElementById('pwa-help-modal');
         if (!helpModal) return;
         helpModal.setAttribute('hidden', '');
         helpModal.style.display = 'none';
+        if (dismiss) {
+            safeStorage('set', 'rd-pwa-install-dismissed', '1');
+        }
     }
 
-    window.__RD_closePwaHelp = closeHelp;
+    function triggerInstallPrompt() {
+        if (!deferredPrompt) {
+            openHelp();
+            return;
+        }
+
+        var prompt = deferredPrompt;
+        deferredPrompt = null;
+        refreshInstallUI();
+
+        prompt.prompt();
+        prompt.userChoice.then(function (choice) {
+            if (choice && choice.outcome === 'accepted') {
+                installButtons().forEach(hide);
+                closeHelp(false);
+            } else {
+                refreshInstallUI();
+            }
+        }).catch(function () {
+            refreshInstallUI();
+        });
+    }
+
+    window.__RD_closePwaHelp = function () { closeHelp(true); };
+    window.__RD_openPwaHelp = openHelp;
 
     window.addEventListener('beforeinstallprompt', function (event) {
         event.preventDefault();
         deferredPrompt = event;
         refreshInstallUI();
+
+        // If the user hasn't dismissed the prompt and isn't installed, show it.
+        if (!isInstalled() && !isInstallDismissed()) {
+            openHelp();
+        }
     });
 
     window.addEventListener('appinstalled', function () {
         deferredPrompt = null;
         safeStorage('set', 'rd-pwa-installed', '1');
+        closeHelp(false);
         hide(updateBanner);
         refreshInstallUI();
         showToast('RoomDekho has been installed.');
     });
 
     document.addEventListener('click', function (event) {
+        var modalInstall = event.target.closest('[data-pwa-modal-install]');
+        if (modalInstall) {
+            triggerInstallPrompt();
+            return;
+        }
+
         var install = event.target.closest('[data-pwa-install]');
         if (install) {
-            if (!deferredPrompt) {
-                openHelp();
-                return;
-            }
-
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(function (choice) {
-                if (choice && choice.outcome === 'accepted') {
-                    installButtons().forEach(hide);
-                }
-                deferredPrompt = null;
-                refreshInstallUI();
-            }).catch(function () {
-                deferredPrompt = null;
-                refreshInstallUI();
-            });
+            triggerInstallPrompt();
             return;
         }
 
@@ -147,12 +194,13 @@
         }
 
         if (event.target.closest('[data-pwa-close-help]')) {
-            closeHelp();
+            var dismiss = !!event.target.closest('[data-pwa-dismiss]');
+            closeHelp(dismiss);
             return;
         }
 
         if (helpModal && !helpModal.hasAttribute('hidden') && event.target === helpModal) {
-            closeHelp();
+            closeHelp(true);
             return;
         }
 
@@ -167,7 +215,9 @@
     });
 
     document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') closeHelp();
+        if (event.key === 'Escape' && helpModal && !helpModal.hasAttribute('hidden')) {
+            closeHelp(true);
+        }
     });
 
     function showUpdate() {
@@ -231,4 +281,13 @@
     }
 
     refreshInstallUI();
+
+    // Show the install popup once for eligible users. Closing it persists dismissal.
+    if (!isInstalled() && !isInstallDismissed()) {
+        window.setTimeout(function () {
+            if (!isInstalled() && !isInstallDismissed()) {
+                openHelp();
+            }
+        }, 600);
+    }
 })();
