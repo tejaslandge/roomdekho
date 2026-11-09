@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+@extends(auth()->check() ? 'layouts.dashboard' : 'layouts.public')
 
 @section('title', $room->room_type . ' in ' . $room->property->title)
 
@@ -6,10 +6,11 @@
 <div class="max-w-6xl mx-auto space-y-8">
     <!-- Header/Navigation -->
     <div class="flex items-center justify-between">
-        <a href="{{ route('tenant.rooms.search') }}" class="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors font-bold">
+        <a href="{{ route('rooms.search') }}" class="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors font-bold">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             Back to Search
         </a>
+        @if(auth()->check() && auth()->user()->role === 'tenant')
         <form action="{{ route('tenant.favourites.toggle', $room) }}" method="POST">
             @csrf
             <button type="submit" class="flex items-center gap-2 px-6 py-2.5 rounded-2xl border border-gray-100 font-bold transition-all {{ auth()->user()->favourites()->where('room_id', $room->id)->exists() ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-text-secondary hover:bg-gray-50' }}">
@@ -17,6 +18,12 @@
                 {{ auth()->user()->favourites()->where('room_id', $room->id)->exists() ? 'Liked' : 'Like Room' }}
             </button>
         </form>
+        @else
+        <a href="{{ route('login') }}" class="flex items-center gap-2 px-6 py-2.5 rounded-2xl border border-gray-100 font-bold transition-all bg-white text-text-secondary hover:bg-gray-50">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            Like Room
+        </a>
+        @endif
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -115,9 +122,15 @@
                         <h4 class="text-xl font-black text-text-primary">{{ $room->property->owner->name }}</h4>
                     </div>
                 </div>
+                @if(auth()->check() && auth()->user()->role === 'tenant')
                 <a href="{{ route('tenant.rooms.chat', $room) }}" class="bg-white text-primary px-6 py-3 rounded-2xl font-black text-sm hover:shadow-lg transition-all border border-primary/10">
                     Contact Owner
                 </a>
+                @else
+                <a href="{{ route('login') }}" class="bg-white text-primary px-6 py-3 rounded-2xl font-black text-sm hover:shadow-lg transition-all border border-primary/10">
+                    Contact Owner
+                </a>
+                @endif
             </div>
         </div>
 
@@ -145,6 +158,7 @@
                         </a>
                     </div>
                 @else
+                    @if(auth()->check() && auth()->user()->role === 'tenant')
                     <form action="{{ route('tenant.bookings.store') }}" method="POST" class="space-y-6">
                         @csrf
                         <input type="hidden" name="room_id" value="{{ $room->id }}">
@@ -176,6 +190,27 @@
                         
                         <p class="text-[10px] text-center text-text-secondary font-bold uppercase tracking-widest">No charges until accepted</p>
                     </form>
+                    @else
+                    <div class="space-y-6">
+                        <div class="p-6 bg-gray-50 rounded-2xl space-y-3">
+                            <div class="flex justify-between text-sm font-bold">
+                                <span class="text-text-secondary">Monthly Rent</span>
+                                <span class="text-text-primary">₹{{ number_format($room->rent) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold">
+                                <span class="text-text-secondary">Security Deposit</span>
+                                <span class="text-text-primary">₹{{ number_format($room->rent) }}</span>
+                            </div>
+                            <div class="pt-3 border-t border-gray-200 flex justify-between font-black">
+                                <span class="text-text-primary uppercase">Total Initial</span>
+                                <span class="text-primary text-xl">₹{{ number_format($room->rent * 2) }}</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('login') }}" class="w-full block text-center bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-wider hover:shadow-2xl hover:shadow-primary/30 transition-all transform hover:-translate-y-1 active:scale-[0.98]">
+                            Login to Book
+                        </a>
+                    </div>
+                    @endif
                 @endif
             </div>
         </div>

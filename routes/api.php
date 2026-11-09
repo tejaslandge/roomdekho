@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/messages', [\App\Http\Controllers\Api\MessageApiController::class, 'sendMessage']);
 
     // Favourite Routes
+    Route::get('/favourites', [\App\Http\Controllers\Api\FavouriteApiController::class, 'index']);
     Route::post('/favourites/toggle', [\App\Http\Controllers\Api\FavouriteApiController::class, 'toggle']);
 
     // OTP Verification Routes

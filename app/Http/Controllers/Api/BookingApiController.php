@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Agreement;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class BookingApiController extends BaseController
 {
@@ -47,19 +48,36 @@ class BookingApiController extends BaseController
             'start_date' => 'required|date|after_or_equal:today',
         ]);
 
-        $room = Room::findOrFail($validated['room_id']);
-        if (!$room->available) {
-            return $this->error('This room is currently not available.', 400);
+        $result = DB::transaction(function () use ($validated, $request) {
+            $room = Room::whereKey($validated['room_id'])->lockForUpdate()->firstOrFail();
+
+            if (! $room->available) {
+                return ['error' => 'This room is currently not available.'];
+            }
+
+            $hasExistingBooking = Booking::where('room_id', $room->id)
+                ->whereIn('status', ['pending', 'active'])
+                ->exists();
+
+            if ($hasExistingBooking) {
+                return ['error' => 'This room already has an active or pending booking.'];
+            }
+
+            $booking = $request->user()->bookings()->create([
+                'room_id' => $room->id,
+                'start_date' => $validated['start_date'],
+                'amount' => $room->rent,
+                'status' => 'pending',
+            ]);
+
+            return ['booking' => $booking];
+        });
+
+        if (isset($result['error'])) {
+            return $this->error($result['error'], 422);
         }
 
-        $booking = $request->user()->bookings()->create([
-            'room_id' => $validated['room_id'],
-            'start_date' => $validated['start_date'],
-            'amount' => $room->rent,
-            'status' => 'pending',
-        ]);
-
-        return $this->success($booking, 'Booking request sent successfully', 201);
+        return $this->success($result['booking'], 'Booking request sent successfully', 201);
     }
 
     /**

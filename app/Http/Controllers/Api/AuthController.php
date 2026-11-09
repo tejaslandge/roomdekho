@@ -45,7 +45,7 @@ class AuthController extends BaseController
             'phone' => $request->phone,
             'role' => $request->role,
             'profile_photo' => $profilePhotoPath,
-            'status' => 'pending',
+            'status' => 'inactive',
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(10),
         ]);

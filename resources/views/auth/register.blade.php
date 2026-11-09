@@ -21,6 +21,35 @@
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
+        <!-- Phone -->
+        <div>
+            <x-input-label for="phone" :value="__('Phone')" class="text-gray-700 font-medium" />
+            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" autocomplete="tel" placeholder="+91 98765 43210" />
+            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+        </div>
+
+        <!-- Role -->
+        <div>
+            <x-input-label :value="__('I want to')" class="text-gray-700 font-medium" />
+            <div class="grid grid-cols-2 gap-3 mt-1">
+                <label class="cursor-pointer">
+                    <input type="radio" name="role" value="tenant" class="peer sr-only" @checked(old('role', 'tenant') === 'tenant')>
+                    <div class="p-3 text-center rounded-xl border-2 border-gray-100 peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all">
+                        <p class="text-sm font-bold text-gray-800">Rent a Room</p>
+                        <p class="text-xs text-gray-500">I'm a tenant</p>
+                    </div>
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" name="role" value="owner" class="peer sr-only" @checked(old('role') === 'owner')>
+                    <div class="p-3 text-center rounded-xl border-2 border-gray-100 peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all">
+                        <p class="text-sm font-bold text-gray-800">List a Property</p>
+                        <p class="text-xs text-gray-500">I'm an owner</p>
+                    </div>
+                </label>
+            </div>
+            <x-input-error :messages="$errors->get('role')" class="mt-2" />
+        </div>
+
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" class="text-gray-700 font-medium" />

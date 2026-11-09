@@ -19,6 +19,16 @@ use App\Http\Controllers\MessageController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Public Room Routes
+Route::get('/search', [RoomController::class, 'search'])->name('rooms.search');
+Route::get('/rooms', [RoomController::class, 'search'])->name('rooms.index');
+Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show');
+
+// Public product documentation
+Route::get('/documentation', function () {
+    return view('documentation');
+})->name('documentation');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Verification Routes (Common)
     Route::get('/verifications', [\App\Http\Controllers\UserVerificationController::class, 'index'])->name('verifications.index');
@@ -48,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
         Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+        Route::put('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
         Route::resource('properties', PropertyController::class);
         Route::resource('rooms', RoomController::class);
         Route::resource('bookings', BookingController::class);
@@ -80,7 +91,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Tenant Routes
     Route::middleware(['role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
         Route::get('/dashboard', [TenantController::class, 'index'])->name('dashboard');
-        Route::get('/search', [RoomController::class, 'search'])->name('rooms.search');
         Route::get('/favourites', [TenantController::class, 'favourites'])->name('favourites.index');
         Route::post('/favourites/{room}/toggle', [TenantController::class, 'toggleFavourite'])->name('favourites.toggle');
         Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
@@ -97,14 +107,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/agreements/{agreement}', [AgreementController::class, 'show'])->name('agreements.show');
         Route::post('/agreements/{agreement}/terminate', [AgreementController::class, 'terminate'])->name('agreements.terminate');
         Route::resource('bookings', BookingController::class);
-        Route::get('/rooms/{room}', [RoomController::class, 'show'])->name('rooms.show');
     });
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/documentation', function() {
-        return view('documentation');
-    })->name('documentation');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

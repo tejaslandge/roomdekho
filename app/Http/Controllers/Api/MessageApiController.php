@@ -11,18 +11,22 @@ class MessageApiController extends BaseController
 {
     /**
      * List user's conversations.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function conversations(Request $request): JsonResponse
     {
-        $conversations = Conversation::where('user_one_id', '=', $request->user()->id)
-            ->orWhere('user_two_id', '=', $request->user()->id)
-            ->with(['userOne', 'userTwo', 'messages' => function($q) {
-                $q->latest()->limit(1);
-            }])
-            ->latest()
+        $userId = $request->user()->id;
+
+        $conversations = Conversation::where(function ($query) use ($userId) {
+            $query->where('owner_id', $userId)
+                ->orWhere('tenant_id', $userId);
+        })
+            ->with([
+                'room.property',
+                'owner',
+                'tenant',
+                'messages' => fn ($q) => $q->latest()->limit(1),
+            ])
+            ->latest('updated_at')
             ->get();
 
         return $this->success($conversations);
@@ -30,14 +34,10 @@ class MessageApiController extends BaseController
 
     /**
      * Get messages for a specific conversation.
-     *
-     * @param Conversation $conversation
-     * @param Request $request
-     * @return JsonResponse
      */
     public function messages(Conversation $conversation, Request $request): JsonResponse
     {
-        if ($conversation->user_one_id !== $request->user()->id && $conversation->user_two_id !== $request->user()->id) {
+        if (! in_array($request->user()->id, [$conversation->owner_id, $conversation->tenant_id], true)) {
             return $this->forbidden();
         }
 
@@ -48,20 +48,17 @@ class MessageApiController extends BaseController
 
     /**
      * Send a new message.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function sendMessage(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'conversation_id' => 'required|exists:conversations,id',
-            'message' => 'required|string',
+            'message' => 'required|string|max:5000',
         ]);
 
         $conversation = Conversation::findOrFail($validated['conversation_id']);
 
-        if ($conversation->user_one_id !== $request->user()->id && $conversation->user_two_id !== $request->user()->id) {
+        if (! in_array($request->user()->id, [$conversation->owner_id, $conversation->tenant_id], true)) {
             return $this->forbidden();
         }
 
@@ -71,6 +68,8 @@ class MessageApiController extends BaseController
             'message' => $validated['message'],
         ]);
 
-        return $this->success($message, 'Message sent successfully', 201);
+        $conversation->touch();
+
+        return $this->success($message->load('sender'), 'Message sent successfully', 201);
     }
 }

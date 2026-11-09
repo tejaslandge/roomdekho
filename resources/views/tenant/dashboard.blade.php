@@ -10,7 +10,7 @@
             <h1 class="text-2xl font-bold text-text-primary">Find your perfect home, {{ explode(' ', auth()->user()->name)[0] }}!</h1>
             <p class="text-text-secondary">Discover the best rooms and apartments in your city.</p>
         </div>
-        <a href="{{ route('tenant.rooms.search') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center gap-2 text-sm">
+        <a href="{{ route('rooms.search') }}" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center gap-2 text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             Explore Rooms
         </a>
@@ -30,7 +30,7 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="flex items-center justify-between">
                 <h3 class="font-display font-bold text-xl text-text-primary">Recommended for You</h3>
-                <a href="{{ route('tenant.rooms.search') }}" class="text-primary text-sm font-bold hover:underline">View All</a>
+                <a href="{{ route('rooms.search') }}" class="text-primary text-sm font-bold hover:underline">View All</a>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -51,7 +51,7 @@
                             <p class="text-sm text-text-secondary truncate mt-1">{{ $room->property->area }}</p>
                             <div class="mt-4 flex items-center justify-between">
                                 <span class="font-bold text-primary text-lg">₹{{ number_format($room->rent) }}<span class="text-text-secondary text-xs">/mo</span></span>
-                                <a href="{{ route('tenant.rooms.show', $room) }}" class="text-sm font-black text-text-primary hover:text-primary transition-colors underline uppercase tracking-tighter">View Details</a>
+                                <a href="{{ route('rooms.show', $room) }}" class="text-sm font-black text-text-primary hover:text-primary transition-colors underline uppercase tracking-tighter">View Details</a>
                             </div>
                         </div>
                     </div>

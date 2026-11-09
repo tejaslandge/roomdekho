@@ -116,7 +116,7 @@ class PropertyApiController extends BaseController
      */
     public function destroy(Property $property): JsonResponse
     {
-        if ($property->owner_id !== auth()->id() && auth()->user()->role !== 'admin') {
+        if ($property->owner_id !== auth('sanctum')->id() && auth('sanctum')->user()?->role !== 'admin') {
             return $this->forbidden();
         }
 

@@ -44,9 +44,9 @@
                 </div>
                 
                 <div class="hidden md:flex items-center gap-8">
-                    <a href="#featured" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">Find Rooms</a>
-                    <a href="#" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">List Your Room</a>
-                    <a href="#" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">How it Works</a>
+                    <a href="{{ route('rooms.search') }}" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">Find Rooms</a>
+                    <a href="{{ route('register') }}" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">List Your Room</a>
+                    <a href="{{ route('documentation') }}" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">How it Works</a>
                 </div>
 
                 <div class="flex items-center gap-4">
@@ -67,20 +67,20 @@
 
             <div class="max-w-4xl mx-auto text-center relative">
                 <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-8">
-                    Find your <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">next home</span><br>just around the corner.
+                    Find your <span class="text-primary">next home</span><br>just around the corner.
                 </h1>
                 <p class="text-lg text-textSecondary mb-12 max-w-2xl mx-auto">
                     Simple, verified, and premium room finding experience in your city. Browse real rooms with real data.
                 </p>
 
                 <!-- Premium Search Box -->
-                <div class="bg-white p-3 rounded-4xl shadow-2xl shadow-primary/10 border border-gray-100 flex flex-col md:flex-row items-center gap-2 max-w-3xl mx-auto">
+                <form method="GET" action="{{ route('rooms.search') }}" class="bg-white p-3 rounded-4xl shadow-2xl shadow-primary/10 border border-gray-100 flex flex-col md:flex-row items-center gap-2 max-w-3xl mx-auto">
                     <div class="flex-1 px-4 flex items-center gap-3 w-full">
                         <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"></path></svg>
-                        <input type="text" placeholder="Where are you looking for room?" class="w-full py-4 text-sm font-medium outline-none placeholder:text-textSecondary/50 bg-transparent">
+                        <input type="text" name="q" value="{{ request('q') }}" placeholder="Where are you looking for room?" class="w-full py-4 text-sm font-medium outline-none placeholder:text-textSecondary/50 bg-transparent">
                     </div>
-                    <button class="bg-primary text-white px-10 py-4 rounded-3xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all w-full md:w-auto">Search Now</button>
-                </div>
+                    <button type="submit" class="bg-primary text-white px-10 py-4 rounded-3xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all w-full md:w-auto">Search Now</button>
+                </form>
             </div>
         </header>
 
@@ -118,7 +118,7 @@
                     <h2 class="text-4xl font-bold mb-3">Featured Rooms</h2>
                     <p class="text-textSecondary">Handpicked verified listings for you.</p>
                 </div>
-                <a href="#" class="text-primary font-bold hover:underline mb-2">View All Rooms</a>
+                <a href="{{ route('rooms.search') }}" class="text-primary font-bold hover:underline mb-2">View All Rooms</a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -146,7 +146,7 @@
                                     <span class="text-xs font-bold text-textSecondary uppercase">{{ $room->water_source }} Source</span>
                                 </div>
                             </div>
-                            <button class="w-full bg-soft text-primary py-3 rounded-2xl font-bold mt-2 hover:bg-primary hover:text-white transition-all">View Details</button>
+                            <a href="{{ route('rooms.show', $room) }}" class="block text-center w-full bg-soft text-primary py-3 rounded-2xl font-bold mt-2 hover:bg-primary hover:text-white transition-all">View Details</a>
                         </div>
                     </div>
                 @empty
@@ -167,7 +167,7 @@
                 <p class="text-white/80 mb-10 text-lg relative max-w-xl mx-auto">Join thousands of property owners and start earning today. Professional management tools included.</p>
                 <div class="flex flex-col md:flex-row items-center justify-center gap-4 relative">
                     <a href="{{ route('register') }}" class="bg-white text-primary px-12 py-4 rounded-3xl font-bold shadow-xl hover:scale-105 active:scale-95 transition-all w-full md:w-auto">Start as Owner</a>
-                    <a href="#" class="border-2 border-white/30 text-white px-12 py-4 rounded-3xl font-bold hover:bg-white/10 transition-all w-full md:w-auto text-center">Learn More</a>
+                    <a href="{{ route('documentation') }}" class="border-2 border-white/30 text-white px-12 py-4 rounded-3xl font-bold hover:bg-white/10 transition-all w-full md:w-auto text-center">Learn More</a>
                 </div>
             </div>
         </section>
@@ -185,9 +185,9 @@
                 <div>
                     <h4 class="font-bold mb-6">Explore</h4>
                     <ul class="space-y-4 text-sm text-textSecondary">
-                        <li><a href="#" class="hover:text-primary transition-all">Browse Rooms</a></li>
-                        <li><a href="#" class="hover:text-primary transition-all">List Property</a></li>
-                        <li><a href="#" class="hover:text-primary transition-all">Cities Overview</a></li>
+                        <li><a href="{{ route('rooms.search') }}" class="hover:text-primary transition-all">Browse Rooms</a></li>
+                        <li><a href="{{ route('register') }}" class="hover:text-primary transition-all">List Property</a></li>
+                        <li><a href="{{ route('documentation') }}" class="hover:text-primary transition-all">How RoomDekho Works</a></li>
                     </ul>
                 </div>
                 <div>
@@ -201,7 +201,7 @@
             </div>
             <div class="max-w-6xl mx-auto px-6 border-t border-gray-50 pt-10 text-center text-sm text-textSecondary">
                 &copy; {{ date('Y') }} RoomDekho. All rights reserved . Designed and Developed by ❤️.
-                {{-- <a class="text-blue-600" href="https://github.com/tejaslandge">Tejas Landge</a>. --}}
+                {{-- <a class="text-blue-600" href="https://github.com/tejaslandge">Tejas Landge</a> --}}
             </div>
         </footer>
     </body>

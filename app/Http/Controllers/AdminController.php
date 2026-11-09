@@ -14,7 +14,7 @@ class AdminController extends Controller
             'total_properties' => \App\Models\Property::count(),
             'active_rooms' => \App\Models\Room::where('available', true)->count(),
             'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
-            'total_revenue' => '₹' . number_format(\App\Models\Booking::where('status', 'active')->sum('amount') ?? 0, 0), // Assuming amount exists or using placeholder for now
+            'total_revenue' => '₹' . number_format((float) \App\Models\Booking::where('status', 'active')->sum('amount'), 0),
         ];
 
         $recent_bookings = \App\Models\Booking::with(['room.property', 'tenant'])->latest()->take(5)->get();
@@ -121,5 +121,33 @@ class AdminController extends Controller
     }
 
     public function profile() { return view('profile.edit', ['user' => auth()->user()]); }
-    public function settings() { return view('admin.settings'); }
+
+    public function settings()
+    {
+        $settings = \App\Models\PlatformSetting::allValues();
+
+        $razorpay = [
+            'key_id' => config('services.razorpay.key_id'),
+            'configured' => filled(config('services.razorpay.key_id')) && filled(config('services.razorpay.key_secret')),
+            'webhook_configured' => filled(config('services.razorpay.webhook_secret')),
+        ];
+
+        return view('admin.settings', compact('settings', 'razorpay'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'site_name' => 'required|string|max:100',
+            'support_email' => 'nullable|email|max:150',
+            'commission_rate' => 'required|numeric|min:0|max:100',
+        ]);
+
+        \App\Models\PlatformSetting::write('site_name', $validated['site_name']);
+        \App\Models\PlatformSetting::write('support_email', $validated['support_email'] ?? null);
+        \App\Models\PlatformSetting::write('commission_rate', (string) $validated['commission_rate']);
+        \App\Models\PlatformSetting::write('maintenance_mode', $request->boolean('maintenance_mode') ? '1' : '0');
+
+        return back()->with('success', 'Platform settings saved successfully.');
+    }
 }

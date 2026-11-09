@@ -30,19 +30,32 @@ class BookingController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
         ]);
 
-        $room = \App\Models\Room::findOrFail($validated['room_id']);
-        if (!$room->available) {
-            return back()->with('error', 'This room is currently not available.');
-        }
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+            // Use lockForUpdate to prevent race conditions
+            $room = \App\Models\Room::where('id', $validated['room_id'])->lockForUpdate()->firstOrFail();
+            
+            if (!$room->available) {
+                return back()->with('error', 'This room is currently not available.');
+            }
 
-        auth()->user()->bookings()->create([
-            'room_id' => $validated['room_id'],
-            'start_date' => $validated['start_date'],
-            'amount' => $room->rent,
-            'status' => 'pending',
-        ]);
+            // Check for existing pending or active bookings that overlap or prevent new bookings
+            $existingBooking = \App\Models\Booking::where('room_id', $room->id)
+                ->whereIn('status', ['pending', 'active'])
+                ->exists();
 
-        return redirect()->route('tenant.bookings.index')->with('success', 'Booking request sent successfully!');
+            if ($existingBooking) {
+                return back()->with('error', 'This room already has an active or pending booking.');
+            }
+
+            auth()->user()->bookings()->create([
+                'room_id' => $validated['room_id'],
+                'start_date' => $validated['start_date'],
+                'amount' => $room->rent,
+                'status' => 'pending',
+            ]);
+
+            return redirect()->route('tenant.bookings.index')->with('success', 'Booking request sent successfully!');
+        });
     }
 
     public function updateStatus(Request $request, Booking $booking, $status)
