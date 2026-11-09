@@ -112,16 +112,32 @@
             <!-- Page Body -->
             <main class="flex-1 overflow-y-auto p-4 md:p-8">
                 @if (session('success'))
-                    <div class="mb-6 p-4 bg-green-50 text-green-700 rounded-2xl border border-green-100 flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        {{ session('success') }}
+                    <div x-data="{ open: true }" x-show="open" x-cloak
+                         class="mb-6 flex items-start justify-between gap-3 rounded-2xl border border-green-100 bg-green-50 p-4 text-green-700"
+                         role="status">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-5 w-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>{{ session('success') }}</span>
+                        </div>
+                        <button type="button" @click="open = false"
+                                class="rounded-lg p-1 text-green-600 hover:bg-green-100" aria-label="Close">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-100 flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        {{ session('error') }}
+                    <div x-data="{ open: true }" x-show="open" x-cloak
+                         class="mb-6 flex items-start justify-between gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-red-700"
+                         role="alert">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-5 w-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                        <button type="button" @click="open = false"
+                                class="rounded-lg p-1 text-red-600 hover:bg-red-100" aria-label="Close">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
                 @endif
                 

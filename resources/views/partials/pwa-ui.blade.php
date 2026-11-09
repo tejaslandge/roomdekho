@@ -29,14 +29,18 @@
 
     <div id="pwa-help-modal" hidden
          class="fixed inset-0 z-[120] flex items-end justify-center bg-gray-900/50 p-4 backdrop-blur-sm sm:items-center"
-         role="dialog" aria-modal="true" aria-labelledby="pwa-help-title">
-        <div class="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl">
+         role="dialog" aria-modal="true" aria-labelledby="pwa-help-title"
+         onclick="if(event.target===this)this.setAttribute('hidden','')">
+        <div class="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl"
+             onclick="event.stopPropagation()">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <h2 id="pwa-help-title" class="font-display text-lg font-bold text-text-primary">Install RoomDekho</h2>
                     <p class="mt-1 text-sm text-text-secondary">Add RoomDekho to your home screen for a faster, full-screen experience.</p>
                 </div>
-                <button type="button" data-pwa-close-help class="rounded-xl p-2 text-text-secondary hover:bg-soft" aria-label="Close">
+                <button type="button" data-pwa-close-help
+                        onclick="var m=document.getElementById('pwa-help-modal'); if(m) m.setAttribute('hidden','');"
+                        class="rounded-xl p-2 text-text-secondary hover:bg-soft" aria-label="Close">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -57,6 +61,7 @@
             </div>
 
             <button type="button" data-pwa-close-help
+                    onclick="var m=document.getElementById('pwa-help-modal'); if(m) m.setAttribute('hidden','');"
                     class="rd-button mt-5 w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-primary/90">
                 Got it
             </button>
@@ -68,4 +73,20 @@
          role="status" aria-live="polite"></div>
 
     <script src="{{ asset('pwa.js') }}" defer></script>
+    <script>
+        (function () {
+            function closePwaHelp() {
+                var m = document.getElementById('pwa-help-modal');
+                if (m) { m.setAttribute('hidden', ''); m.style.display = 'none'; }
+            }
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closePwaHelp();
+            });
+            document.addEventListener('click', function (e) {
+                var m = document.getElementById('pwa-help-modal');
+                if (m && !m.hasAttribute('hidden') && e.target === m) closePwaHelp();
+            });
+            window.__RD_closePwaHelp = closePwaHelp;
+        })();
+    </script>
 @endif

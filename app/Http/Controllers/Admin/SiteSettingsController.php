@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class SiteSettingsController extends Controller
@@ -269,8 +270,10 @@ class SiteSettingsController extends Controller
             'social_image' => 'nullable|file|max:4096|mimetypes:image/png,image/jpeg,image/webp',
             'remove' => 'nullable|array',
             'remove.*' => 'string|in:seo_og_image,social_image',
-            'seo_twitter_card' => 'required|in:summary,summary_large_image',
-            'seo_robots' => 'required|in:index,follow,noindex,nofollow',
+            'seo_twitter_card' => ['required', Rule::in(['summary', 'summary_large_image'])],
+            // Values contain commas, so Rule::in() is required: the string
+            // "in:index,follow" rule would split them into separate options.
+            'seo_robots' => ['required', Rule::in(['index,follow', 'noindex,nofollow'])],
         ]);
 
         $values = [

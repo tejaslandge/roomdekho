@@ -21,9 +21,26 @@ use App\Http\Controllers\Admin\SiteSettingsController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// PWA manifest + offline shell (public, no auth).
-Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
-Route::get('/offline', [PwaController::class, 'offline'])->name('pwa.offline');
+// PWA manifest + offline shell (public, no auth, no session/cookies so the
+// responses stay cacheable and safe to serve from the service worker).
+Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])
+    ->withoutMiddleware([
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+    ])
+    ->name('pwa.manifest');
+Route::get('/offline', [PwaController::class, 'offline'])
+    ->withoutMiddleware([
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+    ])
+    ->name('pwa.offline');
 
 // Public Room Routes
 Route::get('/search', [RoomController::class, 'search'])->name('rooms.search');

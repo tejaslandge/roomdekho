@@ -88,15 +88,22 @@
     }
 
     function openHelp() {
+        if (!helpModal) helpModal = document.getElementById('pwa-help-modal');
         if (!helpModal) return;
-        show(helpModal);
+        helpModal.removeAttribute('hidden');
+        helpModal.style.display = '';
         var first = helpModal.querySelector('[data-pwa-close-help]');
         if (first) first.focus();
     }
 
     function closeHelp() {
-        hide(helpModal);
+        if (!helpModal) helpModal = document.getElementById('pwa-help-modal');
+        if (!helpModal) return;
+        helpModal.setAttribute('hidden', '');
+        helpModal.style.display = 'none';
     }
+
+    window.__RD_closePwaHelp = closeHelp;
 
     window.addEventListener('beforeinstallprompt', function (event) {
         event.preventDefault();
@@ -139,7 +146,12 @@
             return;
         }
 
-        if (event.target.closest('[data-pwa-close-help]') || event.target === helpModal) {
+        if (event.target.closest('[data-pwa-close-help]')) {
+            closeHelp();
+            return;
+        }
+
+        if (helpModal && !helpModal.hasAttribute('hidden') && event.target === helpModal) {
             closeHelp();
             return;
         }
