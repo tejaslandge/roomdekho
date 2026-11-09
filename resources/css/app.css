@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --color-primary: 167 139 250;
+    --color-secondary: 249 168 212;
+    --color-accent: 96 165 250;
+    --color-header-bg: 255 255 255;
+    --color-footer-bg: 255 255 255;
+    --color-soft: 249 247 255;
+    --color-text-primary: 31 41 55;
+    --color-text-secondary: 107 114 128;
+    --radius-button: 1rem;
+}
+
+.rd-button {
+    border-radius: var(--radius-button);
+}

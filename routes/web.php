@@ -15,9 +15,15 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PwaController;
+use App\Http\Controllers\Admin\SiteSettingsController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// PWA manifest + offline shell (public, no auth).
+Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
+Route::get('/offline', [PwaController::class, 'offline'])->name('pwa.offline');
 
 // Public Room Routes
 Route::get('/search', [RoomController::class, 'search'])->name('rooms.search');
@@ -57,8 +63,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
-        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-        Route::put('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/settings', [SiteSettingsController::class, 'general'])->name('settings');
+        Route::put('/settings', [SiteSettingsController::class, 'updateGeneral'])->name('settings.update');
+        Route::get('/settings/branding', [SiteSettingsController::class, 'branding'])->name('settings.branding');
+        Route::put('/settings/branding', [SiteSettingsController::class, 'updateBranding'])->name('settings.branding.update');
+        Route::get('/settings/pwa', [SiteSettingsController::class, 'pwa'])->name('settings.pwa');
+        Route::put('/settings/pwa', [SiteSettingsController::class, 'updatePwa'])->name('settings.pwa.update');
+        Route::get('/settings/appearance', [SiteSettingsController::class, 'appearance'])->name('settings.appearance');
+        Route::put('/settings/appearance', [SiteSettingsController::class, 'updateAppearance'])->name('settings.appearance.update');
+        Route::get('/settings/seo', [SiteSettingsController::class, 'seo'])->name('settings.seo');
+        Route::put('/settings/seo', [SiteSettingsController::class, 'updateSeo'])->name('settings.seo.update');
         Route::resource('properties', PropertyController::class);
         Route::resource('rooms', RoomController::class);
         Route::resource('bookings', BookingController::class);

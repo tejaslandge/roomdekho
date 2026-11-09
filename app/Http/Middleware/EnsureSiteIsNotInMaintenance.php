@@ -24,8 +24,9 @@ class EnsureSiteIsNotInMaintenance
             return $next($request);
         }
 
-        // Keep authentication and health endpoints reachable so an admin can log in.
-        if ($request->routeIs('login', 'logout', 'password.*', 'up')) {
+        // Keep authentication, PWA and health endpoints reachable so an admin can log in
+        // and installed apps can still refresh their manifest/offline shell.
+        if ($request->routeIs('login', 'logout', 'password.*', 'pwa.*', 'up')) {
             return $next($request);
         }
 

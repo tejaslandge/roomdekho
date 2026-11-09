@@ -1,11 +1,18 @@
+@php
+    $dashboardBrand = site_branding();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="robots" content="noindex,nofollow">
 
-    <title>{{ config('app.name', 'RoomDekho') }} - Dashboard</title>
+    <title>{{ $dashboardBrand['site_name'] }} - @yield('title', 'Dashboard')</title>
+
+    @include('partials.pwa-head')
+    @include('partials.theme-variables')
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,14 +22,13 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-soft text-text-primary" x-data="{ showLogoutModal: false }">
+<body class="font-sans antialiased bg-soft text-text-primary" x-data="{ showLogoutModal: false, sidebarOpen: false }">
     <div class="min-h-screen flex overflow-hidden">
         <!-- Sidebar -->
         <aside class="w-64 bg-white border-r border-gray-100 flex-shrink-0 hidden md:flex flex-col">
             <div class="p-6">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">R</div>
-                    <span class="font-display font-bold text-xl text-primary">RoomDekho</span>
+                    <x-site-logo image-class="h-8 w-auto" name-class="font-display text-xl font-bold text-primary" />
                 </a>
             </div>
 
@@ -38,18 +44,52 @@
             </div>
         </aside>
 
+        <!-- Mobile navigation drawer -->
+        <div x-show="sidebarOpen" x-cloak class="fixed inset-0 z-[90] md:hidden" style="display: none;">
+            <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" @click="sidebarOpen = false"></div>
+            <aside class="relative flex h-full w-72 max-w-[85%] flex-col bg-white shadow-2xl"
+                   x-transition:enter="transition ease-out duration-200"
+                   x-transition:enter-start="-translate-x-full"
+                   x-transition:enter-end="translate-x-0"
+                   x-transition:leave="transition ease-in duration-150"
+                   x-transition:leave-start="translate-x-0"
+                   x-transition:leave-end="-translate-x-full">
+                <div class="flex items-center justify-between p-6">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+                        <x-site-logo variant="mobile" image-class="h-8 w-auto" name-class="font-display text-xl font-bold text-primary" />
+                    </a>
+                    <button @click="sidebarOpen = false" class="rounded-xl p-2 text-gray-400 hover:bg-gray-50" aria-label="Close menu">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-2">
+                    @include('layouts.partials.sidebar-' . auth()->user()->role)
+                </nav>
+                <div class="space-y-2 border-t border-gray-50 p-4">
+                    <x-pwa-install-button variant="menu" mode="help" label="Install RoomDekho App" />
+                    <button @click="showLogoutModal = true" class="flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        Logout
+                    </button>
+                </div>
+            </aside>
+        </div>
+
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
             <!-- Navbar -->
             <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-8 flex-shrink-0">
                 <div class="flex items-center gap-4">
-                    <button class="md:hidden p-2 text-gray-400 hover:bg-gray-50 rounded-lg">
+                    <button @click="sidebarOpen = true" class="md:hidden p-2 text-gray-400 hover:bg-gray-50 rounded-lg" aria-label="Open menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                     <h2 class="font-display font-semibold text-lg">@yield('title', 'Dashboard')</h2>
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <div class="hidden sm:block">
+                        <x-pwa-install-button variant="ghost" label="Install" compact />
+                    </div>
                     <!-- Notifications -->
                     <button class="p-2 text-gray-400 hover:bg-gray-50 rounded-full relative">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
@@ -145,5 +185,7 @@
             </div>
         </div>
     </div>
+
+    @include('partials.pwa-ui')
 </body>
 </html>

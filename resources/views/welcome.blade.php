@@ -1,29 +1,42 @@
+@php
+    $welcomeBrand = site_branding();
+    $welcomeAppearance = site_settings()->appearance();
+    $welcomeSeo = site_seo();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>RoomDekho | Find Your Perfect Room</title>
+        @include('partials.seo-meta', [
+            'pageTitle' => $welcomeSeo['title'],
+            'pageDescription' => $welcomeSeo['description'],
+            'pageImage' => $welcomeSeo['image_url'],
+        ])
+        @include('partials.pwa-head')
+        @include('partials.theme-variables')
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700" rel="stylesheet" />
-        <link rel="shortcut icon" href="assets/app_icon.png" type="image/x-icon">
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <style>
             body { font-family: 'Outfit', sans-serif; }
             [x-cloak] { display: none !important; }
-            .bg-glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); }
+            .bg-glass { background: rgba(var(--color-header-bg), 0.72); backdrop-filter: blur(12px); }
         </style>
         <script>
             tailwind.config = {
                 theme: {
                     extend: {
                         colors: {
-                            primary: '#A78BFA',
-                            secondary: '#F9A8D4',
-                            soft: '#F9F7FF',
-                            textPrimary: '#1F2937',
-                            textSecondary: '#6B7280',
+                            primary: 'rgb(var(--color-primary) / <alpha-value>)',
+                            secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
+                            accent: 'rgb(var(--color-accent) / <alpha-value>)',
+                            soft: 'rgb(var(--color-soft) / <alpha-value>)',
+                            textPrimary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+                            textSecondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
+                            header: 'rgb(var(--color-header-bg) / <alpha-value>)',
+                            footer: 'rgb(var(--color-footer-bg) / <alpha-value>)',
                         },
                         borderRadius: {
                             '3xl': '1.5rem',
@@ -34,13 +47,12 @@
             }
         </script>
     </head>
-    <body class="bg-soft text-textPrimary antialiased overflow-x-hidden">
+    <body class="bg-soft text-textPrimary antialiased overflow-x-hidden" data-rd-theme="{{ $welcomeAppearance['theme'] }}">
         <!-- Floating Navbar -->
         <nav class="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl z-50">
             <div class="bg-glass border border-white/50 px-8 py-4 rounded-3xl shadow-xl shadow-primary/5 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl">R</div>
-                    <span class="text-xl font-bold tracking-tight">RoomDekho</span>
+                    <x-site-logo image-class="h-10 w-auto" name-class="text-xl font-bold tracking-tight" />
                 </div>
                 
                 <div class="hidden md:flex items-center gap-8">
@@ -49,12 +61,13 @@
                     <a href="{{ route('documentation') }}" class="text-sm font-bold text-textSecondary hover:text-primary transition-colors">How it Works</a>
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <x-pwa-install-button variant="light" label="Install" compact />
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="bg-primary text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Go to Dashboard</a>
+                        <a href="{{ url('/dashboard') }}" class="rd-button bg-primary text-white px-4 sm:px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Dashboard</a>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-bold text-textSecondary hover:text-primary transition-all">Log In</a>
-                        <a href="{{ route('register') }}" class="bg-primary text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Join RoomDekho</a>
+                        <a href="{{ route('login') }}" class="hidden text-sm font-bold text-textSecondary hover:text-primary transition-all sm:inline">Log In</a>
+                        <a href="{{ route('register') }}" class="rd-button bg-primary text-white px-4 sm:px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Join</a>
                     @endauth
                 </div>
             </div>
@@ -79,7 +92,7 @@
                         <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"></path></svg>
                         <input type="text" name="q" value="{{ request('q') }}" placeholder="Where are you looking for room?" class="w-full py-4 text-sm font-medium outline-none placeholder:text-textSecondary/50 bg-transparent">
                     </div>
-                    <button type="submit" class="bg-primary text-white px-10 py-4 rounded-3xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all w-full md:w-auto">Search Now</button>
+                    <button type="submit" class="rd-button bg-primary text-white px-10 py-4 rounded-3xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all w-full md:w-auto">Search Now</button>
                 </form>
             </div>
         </header>
@@ -166,33 +179,41 @@
                 <h2 class="text-4xl md:text-5xl font-bold mb-6 relative">Ready to list your room?</h2>
                 <p class="text-white/80 mb-10 text-lg relative max-w-xl mx-auto">Join thousands of property owners and start earning today. Professional management tools included.</p>
                 <div class="flex flex-col md:flex-row items-center justify-center gap-4 relative">
-                    <a href="{{ route('register') }}" class="bg-white text-primary px-12 py-4 rounded-3xl font-bold shadow-xl hover:scale-105 active:scale-95 transition-all w-full md:w-auto">Start as Owner</a>
+                    <a href="{{ route('register') }}" class="rd-button bg-white text-primary px-12 py-4 rounded-3xl font-bold shadow-xl hover:scale-105 active:scale-95 transition-all w-full md:w-auto">Start as Owner</a>
                     <a href="{{ route('documentation') }}" class="border-2 border-white/30 text-white px-12 py-4 rounded-3xl font-bold hover:bg-white/10 transition-all w-full md:w-auto text-center">Learn More</a>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="bg-white pt-20 pb-10 border-t border-gray-100">
+        <footer class="bg-footer pt-20 pb-10 border-t border-gray-100">
             <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                 <div class="md:col-span-2">
                     <div class="flex items-center gap-2 mb-6">
-                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">R</div>
-                        <span class="text-xl font-bold tracking-tight">RoomDekho</span>
+                        <x-site-logo variant="dark" image-class="h-8 w-auto" name-class="text-xl font-bold tracking-tight" />
                     </div>
-                    <p class="text-textSecondary leading-relaxed max-w-sm">Premium room management and discovery platform. Finding your next home should be as easy as a click.</p>
+                    <p class="text-textSecondary leading-relaxed max-w-sm">{{ \Illuminate\Support\Str::limit($welcomeSeo['description'], 180) }}</p>
+                    <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-textSecondary">
+                        @if (site_setting('support_email'))
+                            <a href="mailto:{{ site_setting('support_email') }}" class="hover:text-primary transition-all">{{ site_setting('support_email') }}</a>
+                        @endif
+                        @if (site_setting('contact_phone'))
+                            <a href="tel:{{ site_setting('contact_phone') }}" class="hover:text-primary transition-all">{{ site_setting('contact_phone') }}</a>
+                        @endif
+                    </div>
                 </div>
                 <div>
                     <h4 class="font-bold mb-6">Explore</h4>
                     <ul class="space-y-4 text-sm text-textSecondary">
                         <li><a href="{{ route('rooms.search') }}" class="hover:text-primary transition-all">Browse Rooms</a></li>
                         <li><a href="{{ route('register') }}" class="hover:text-primary transition-all">List Property</a></li>
-                        <li><a href="{{ route('documentation') }}" class="hover:text-primary transition-all">How RoomDekho Works</a></li>
+                        <li><a href="{{ route('documentation') }}" class="hover:text-primary transition-all">How {{ $welcomeBrand['site_name'] }} Works</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-bold mb-6">Support</h4>
                     <ul class="space-y-4 text-sm text-textSecondary">
+                        <li><x-pwa-install-button variant="ghost" mode="help" label="Install App" /></li>
                         <li><a href="#" class="hover:text-primary transition-all">Help Center</a></li>
                         <li><a href="#" class="hover:text-primary transition-all">Terms of Service</a></li>
                         <li><a href="#" class="hover:text-primary transition-all">Privacy Policy</a></li>
@@ -200,9 +221,10 @@
                 </div>
             </div>
             <div class="max-w-6xl mx-auto px-6 border-t border-gray-50 pt-10 text-center text-sm text-textSecondary">
-                &copy; {{ date('Y') }} RoomDekho. All rights reserved . Designed and Developed by ❤️.
-                {{-- <a class="text-blue-600" href="https://github.com/tejaslandge">Tejas Landge</a> --}}
+                {{ $welcomeBrand['copyright'] }}
             </div>
         </footer>
+
+        @include('partials.pwa-ui')
     </body>
 </html>
